@@ -25,6 +25,7 @@ namespace Sass {
     vector<pair<Node, Node> > pending_extensions;
     vector<const char*> source_refs; // all the source c-strings
     vector<string> include_paths;
+    vector<string> import_dependencies;
     map<string, Node> color_names_to_values;
     map<Node, string> color_values_to_names;
     Node_Factory new_Node;
@@ -36,6 +37,7 @@ namespace Sass {
     bool source_comments;
 
     void collect_include_paths(const char* paths_str);
+    void add_import_dependency(const char* file_path_str);
     Context(const char* paths_str = 0, const char* img_path_str = 0, bool sc = false);
     ~Context();
 

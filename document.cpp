@@ -95,6 +95,7 @@ namespace Sass {
     doc.end         = end;
     doc.position    = source;
     doc.context.source_refs.push_back(source);
+    doc.context.add_import_dependency(path_str);
 
     return doc;
   }

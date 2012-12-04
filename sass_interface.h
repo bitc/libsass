@@ -1,5 +1,12 @@
 #define SASS_INTERFACE
 
+#ifdef _WIN32
+#define PATH_SEP ';'
+#else
+#define PATH_SEP ':'
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,6 +29,7 @@ struct sass_context {
   struct sass_options options;
   int error_status;
   char* error_message;
+  char* import_dependencies;
 };
 
 struct sass_file_context {
@@ -30,6 +38,7 @@ struct sass_file_context {
   struct sass_options options;
   int error_status;
   char* error_message;
+  char* import_dependencies;
 };
 
 struct sass_folder_context {

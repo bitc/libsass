@@ -7,6 +7,7 @@
 #define PATH_SEP ':'
 #endif
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -51,6 +52,16 @@ namespace Sass {
     // for (int i = 0; i < include_paths.size(); ++i) {
     //   cerr << include_paths[i] << endl;
     // }
+  }
+
+  void Context::add_import_dependency(const char* file_path_str)
+  {
+    if(std::find(
+          import_dependencies.begin(),
+          import_dependencies.end(),
+          file_path_str) == import_dependencies.end()) {
+      import_dependencies.push_back(file_path_str);
+    }
   }
   
   Context::Context(const char* paths_str, const char* img_path_str, bool sc)

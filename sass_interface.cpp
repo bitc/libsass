@@ -24,6 +24,7 @@ extern "C" {
   { 
     if (ctx->output_string) free(ctx->output_string);
     if (ctx->error_message) free(ctx->error_message);
+    if (ctx->import_dependencies) free(ctx->import_dependencies);
 
     free(ctx);
   }
@@ -35,6 +36,7 @@ extern "C" {
   { 
     if (ctx->output_string) free(ctx->output_string);
     if (ctx->error_message) free(ctx->error_message);
+    if (ctx->import_dependencies) free(ctx->import_dependencies);
 
     free(ctx);
   }
@@ -62,6 +64,37 @@ extern "C" {
     return c_output;
   }
 
+  static char* make_import_dependencies_str(const Sass::Context& ctx)
+  {
+      int num_chars = 0;
+      for(vector<string>::const_iterator i = ctx.import_dependencies.begin();
+              i != ctx.import_dependencies.end();
+              ++i) {
+          num_chars += (*i).size();
+          // Add room for the PATH_SEP character, or the trailing NULL:
+          num_chars += 1;
+      }
+      if(num_chars == 0) {
+          // Be careful to handle the special case of no dependencies
+          num_chars = 1;
+      }
+      char* result = (char*) malloc(num_chars);
+
+      int pos = 0;
+      for(vector<string>::const_iterator i = ctx.import_dependencies.begin();
+              i != ctx.import_dependencies.end();
+              ++i) {
+          int size = (*i).size();
+          memcpy(&result[pos], &(*i)[0], size);
+          result[pos+size] = PATH_SEP;
+          pos += size + 1;
+      }
+
+      result[num_chars-1] = '\0';
+
+      return result;
+  }
+
   int sass_compile(sass_context* c_ctx)
   {
     using namespace Sass;
@@ -73,6 +106,7 @@ extern "C" {
       c_ctx->output_string = process_document(doc, c_ctx->options.output_style);
       c_ctx->error_message = 0;
       c_ctx->error_status = 0;
+      c_ctx->import_dependencies = make_import_dependencies_str(cpp_ctx);
     }
     catch (Error& e) {
       stringstream msg_stream;
@@ -82,6 +116,7 @@ extern "C" {
       strcpy(msg_str, msg.c_str());
       c_ctx->error_status = 1;
       c_ctx->output_string = 0;
+      c_ctx->import_dependencies = 0;
       c_ctx->error_message = msg_str;
     }
     catch(bad_alloc& ba) {
@@ -92,6 +127,7 @@ extern "C" {
       strcpy(msg_str, msg.c_str());
       c_ctx->error_status = 1;
       c_ctx->output_string = 0;
+      c_ctx->import_dependencies = 0;
       c_ctx->error_message = msg_str;
     }
     // TO DO: CATCH EVERYTHING ELSE
@@ -107,6 +143,7 @@ extern "C" {
       c_ctx->output_string = process_document(doc, c_ctx->options.output_style);
       c_ctx->error_message = 0;
       c_ctx->error_status = 0;
+      c_ctx->import_dependencies = make_import_dependencies_str(cpp_ctx);
     }
     catch (Error& e) {
       stringstream msg_stream;
@@ -116,6 +153,7 @@ extern "C" {
       strcpy(msg_str, msg.c_str());
       c_ctx->error_status = 1;
       c_ctx->output_string = 0;
+      c_ctx->import_dependencies = 0;
       c_ctx->error_message = msg_str;
     }
     catch(bad_alloc& ba) {
@@ -126,6 +164,7 @@ extern "C" {
       strcpy(msg_str, msg.c_str());
       c_ctx->error_status = 1;
       c_ctx->output_string = 0;
+      c_ctx->import_dependencies = 0;
       c_ctx->error_message = msg_str;
     }
     catch(string& bad_path) {
@@ -135,6 +174,7 @@ extern "C" {
           c_ctx->output_string = process_document(doc, c_ctx->options.output_style);
           c_ctx->error_message = 0;
           c_ctx->error_status = 0;
+          c_ctx->import_dependencies = 0;
           return 0;
         }
         catch (string& bad_path) {
@@ -149,6 +189,7 @@ extern "C" {
       strcpy(msg_str, msg.c_str());
       c_ctx->error_status = 1;
       c_ctx->output_string = 0;
+      c_ctx->import_dependencies = 0;
       c_ctx->error_message = msg_str;
     }
     // TO DO: CATCH EVERYTHING ELSE
